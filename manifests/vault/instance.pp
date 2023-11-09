@@ -18,11 +18,11 @@ define hashiplat::vault::instance (
   $service = "vault-${mode}"
 
   file { "/usr/lib/systemd/system/${service}.service":
-    ensure => file,
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0644',
-    source => template("${module_name}/vault.service.erb"),
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => template("${module_name}/vault.service.erb"),
   }
 
   ~> service { $service:

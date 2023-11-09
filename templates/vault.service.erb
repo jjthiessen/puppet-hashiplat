@@ -3,14 +3,14 @@ Description="HashiCorp Vault - A tool for managing secrets"
 Documentation=https://developer.hashicorp.com/vault/docs
 Requires=network-online.target
 After=network-online.target
-ConditionDirectoryNotEmpty=<%= $config_dir %>/config
-ConditionDirectoryNotEmpty=<%= $config_dir %>/tls
+ConditionDirectoryNotEmpty=<%= @config_dir %>/config
+ConditionDirectoryNotEmpty=<%= @config_dir %>/tls
 StartLimitIntervalSec=60
 StartLimitBurst=3
 
 [Service]
 Type=notify
-EnvironmentFile=<%= $config_dir %>/.env
+EnvironmentFile=<%= @config_dir %>/.env
 User=vault
 Group=vault
 ProtectSystem=full
@@ -21,7 +21,7 @@ SecureBits=keep-caps
 AmbientCapabilities=CAP_IPC_LOCK
 CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
 NoNewPrivileges=yes
-ExecStart=/usr/local/bin/vault <%= $mode =%> -config=<%= $config_dir %>/config/
+ExecStart=/usr/local/bin/vault <%= @mode %> -config=<%= @config_dir %>/config/
 ExecReload=/bin/kill --signal HUP $MAINPID
 KillMode=process
 KillSignal=SIGINT
