@@ -5,9 +5,13 @@
   "summary": "HashiCorp Vault, Consul, and Nomad configuration",
   "license": "UPL-1.0",
   "source": "https://github.com/jjthiessen/puppet-hashiplat",
-  "dependencies": [
-
-  ],
+  "dependencies": [{
+    "name": "inkblot/hashicorp",
+    "version_requirement": ">= 0.0.0 < 1.0.0"
+  }, {
+    "name": "puppet/systemd",
+    "version_requirement": ">= 0.0.0 < 1.0.0"
+  }],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",

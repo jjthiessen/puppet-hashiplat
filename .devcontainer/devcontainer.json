@@ -15,5 +15,7 @@
 				"rebornix.Ruby"
 			]
 		}
-	}
+	},
+	"remoteUser": "vscode",
+	"containerUser": "vscode"
 }
