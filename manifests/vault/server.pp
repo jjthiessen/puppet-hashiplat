@@ -67,14 +67,14 @@ class hashiplat::vault::server (
 
   file { $config_dir:
     ensure => directory,
-    user   => $hashiplat::vault::user,
+    owner  => $hashiplat::vault::user,
     group  => $hashiplat::vault::group,
     mode   => '0750',
   }
 
   file { $data_dir:
     ensure       => directory,
-    user         => $hashiplat::vault::user,
+    owner        => $hashiplat::vault::user,
     group        => $hashiplat::vault::group,
     mode         => '0750',
     purge        => true,

@@ -34,7 +34,7 @@ define hashiplat::vault::instance (
 
   file { $etc_config:
     ensure  => directory,
-    user    => $hashiplat::vault::user,
+    owner   => $hashiplat::vault::user,
     group   => $hashiplat::vault::group,
     mode    => '0750',
     require => File[$config_dir],
@@ -57,7 +57,7 @@ define hashiplat::vault::instance (
 
   file { $etc_tls:
     ensure  => directory,
-    user    => $hashiplat::vault::user,
+    owner   => $hashiplat::vault::user,
     group   => $hashiplat::vault::group,
     mode    => '0750',
     require => File[$config_dir],

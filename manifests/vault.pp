@@ -42,7 +42,7 @@ class hashiplat::vault (
 
   file { $config_dir:
     ensure  => directory,
-    user    => $user,
+    owner   => $user,
     group   => $group,
     mode    => '0750',
     purge   => true,
@@ -52,7 +52,7 @@ class hashiplat::vault (
 
   file { $data_dir:
     ensure       => directory,
-    user         => $user,
+    owner        => $user,
     group        => $group,
     mode         => '0750',
     purge        => true,
