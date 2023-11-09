@@ -22,7 +22,7 @@ define hashiplat::vault::instance (
     owner  => 'root',
     group  => 'root',
     mode   => '0644',
-    source => template("puppet:///modules/${module_name}/vault.service.erb"),
+    source => template("${module_name}/vault.service.erb"),
   }
 
   ~> service { $service:
