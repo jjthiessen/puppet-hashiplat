@@ -83,6 +83,14 @@ class hashiplat::vault::server (
     recurselimit => 1,
   }
 
+  file { "${data_dir}/data":
+    ensure  => directory,
+    owner   => $hashiplat::vault::user,
+    group   => $hashiplat::vault::group,
+    mode    => '0750',
+    require => File[$data_dir],
+  }
+
   firewall { '500 Allow Vault client connections':
     dport  => 8200,
     state  => 'NEW',

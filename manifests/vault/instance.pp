@@ -67,7 +67,7 @@ define hashiplat::vault::instance (
   concat_fragment { "vault_${mode}_config_main":
     tag     => "vault_${mode}_config",
     target  => "vault_${mode}_config",
-    content => to_json(config),
+    content => to_json($config),
     order   => 1,
   }
 
