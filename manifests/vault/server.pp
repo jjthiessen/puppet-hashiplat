@@ -74,8 +74,8 @@ class hashiplat::vault::server (
 
   file { $data_dir:
     ensure       => directory,
-    user         => $user,
-    group        => $group,
+    user         => $hashiplat::vault::user,
+    group        => $hashiplat::vault::group,
     mode         => '0750',
     purge        => true,
     recurse      => true,
