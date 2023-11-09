@@ -84,14 +84,14 @@ class hashiplat::vault::server (
   }
 
   firewall { '500 Allow Vault client connections':
-    port   => 8200,
+    dport  => 8200,
     state  => 'NEW',
     action => 'accept',
     proto  => 'tcp',
   }
 
   firewall { '500 Allow Vault cluster connections':
-    port   => 8201,
+    dport  => 8201,
     state  => 'NEW',
     action => 'accept',
     proto  => 'tcp',

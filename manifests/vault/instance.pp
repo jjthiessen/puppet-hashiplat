@@ -36,6 +36,14 @@ define hashiplat::vault::instance (
 
   # Actual configuration
 
+  file { "${config_dir}/.env":
+    ensure  => file,
+    owner   => $hashiplat::vault::user,
+    group   => $hashiplat::vault::group,
+    mode    => '0640',
+    require => File[$config_dir],
+  }
+
   file { $etc_config:
     ensure  => directory,
     owner   => $hashiplat::vault::user,
@@ -44,7 +52,6 @@ define hashiplat::vault::instance (
     require => File[$config_dir],
   }
 
-  $json_config = to_json(config)
   concat_file { "vault_${mode}_config":
     tag     => "vault_${mode}_config",
     path    => "${etc_config}/vault.json",
@@ -55,6 +62,13 @@ define hashiplat::vault::instance (
     before  => Service[$service],
     notify  => Service[$service],
     require => File[$etc_config],
+  }
+
+  concat_fragment { "vault_${mode}_config_main":
+    tag     => "vault_${mode}_config",
+    target  => "vault_${mode}_config",
+    content => to_json(config),
+    order   => 1,
   }
 
   # TLS
