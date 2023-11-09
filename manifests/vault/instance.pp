@@ -25,6 +25,10 @@ define hashiplat::vault::instance (
     source => "puppet:///modules/${module_name}/vault.service.erb",
   }
 
+  ~> service { $service:
+    ensure => running,
+  }
+
   # Configuration
 
   $etc_config   = "${config_dir}/config"
