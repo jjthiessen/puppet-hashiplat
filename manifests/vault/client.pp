@@ -18,7 +18,7 @@ class hashiplat::vault::client (
       # REVIEW: Address has to be unitary:
       #         - if we use a single instance, we tie the availability of downstream services to that instance
       #         - if we use Consul DNS, Consul has to be online (but it, too, depends on Vault working), complicating bootstrapping
-      address     => $servers[0], # TODO: Do something better here
+      address     => "https://${servers[0]}:8200", # TODO: Do something better here
       ca_cert     => "${config_dir}/tls/ca.pem",
       client_cert => "${config_dir}/tls/public.pem",
       client_key  => "${config_dir}/tls/private.pem",
