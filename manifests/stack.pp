@@ -5,5 +5,6 @@
 # @example
 #   include hashiplat::stack
 class hashiplat::stack {
-  include hashiplat
+  include hashiplat::consul::server
+  include hashiplat::vault::server
 }

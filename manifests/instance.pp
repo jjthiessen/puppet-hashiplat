@@ -3,26 +3,29 @@
 # A description of what this defined type does
 #
 # @example
-#   hashiplat::vault::instance { 'namevar': }
-define hashiplat::vault::instance (
-  Enum['server', 'agent'] $mode = $name,
-  Hash[String, Any]       $config,
-  String                  $tls_ca,
-  String                  $tls_cert,
-  String                  $tls_key,
-  String                  $data_dir,
-  String                  $config_dir,
+#   hashiplat::instance { 'namevar': }
+define hashiplat::instance (
+  Enum['consul', 'vault']  $app  = $name.split('-')[0],
+  Enum['server', 'client'] $mode = $name.split('-')[1],
+  Hash[String, Any]        $config,
+  String                   $user,
+  String                   $group,
+  String                   $tls_ca,
+  String                   $tls_cert,
+  String                   $tls_key,
+  String                   $data_dir,
+  String                   $config_dir,
 ) {
   # Systemd unit
 
-  $service = "vault-${mode}"
+  $service = "${app}-${mode}"
 
   file { "/usr/lib/systemd/system/${service}.service":
     ensure  => file,
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => template("${module_name}/vault.service.erb"),
+    content => template("${module_name}/${app}.service.erb"),
   }
 
   ~> service { $service:
@@ -38,35 +41,35 @@ define hashiplat::vault::instance (
 
   file { "${config_dir}/.env":
     ensure  => file,
-    owner   => $hashiplat::vault::user,
-    group   => $hashiplat::vault::group,
-    mode    => '0640',
+    owner   => $user,
+    group   => $group,
+    mode    => '0440',
     require => File[$config_dir],
   }
 
   file { $etc_config:
     ensure  => directory,
-    owner   => $hashiplat::vault::user,
-    group   => $hashiplat::vault::group,
-    mode    => '0750',
+    owner   => $user,
+    group   => $group,
+    mode    => '0550',
     require => File[$config_dir],
   }
 
-  concat_file { "vault_${mode}_config":
-    tag     => "vault_${mode}_config",
-    path    => "${etc_config}/vault.json",
+  concat_file { "${app}_${mode}_config":
+    tag     => "${app}_${mode}_config",
+    path    => "${etc_config}/${app}.json",
     format  => 'json-pretty',
-    owner   => $hashiplat::vault::user,
-    group   => $hashiplat::vault::group,
-    mode    => '0640',
+    owner   => $user,
+    group   => $group,
+    mode    => '0440',
     before  => Service[$service],
     notify  => Service[$service],
     require => File[$etc_config],
   }
 
-  concat_fragment { "vault_${mode}_config_main":
-    tag     => "vault_${mode}_config",
-    target  => "vault_${mode}_config",
+  concat_fragment { "${app}_${mode}_config_main":
+    tag     => "${app}_${mode}_config",
+    target  => "${app}_${mode}_config",
     content => to_json($config),
     order   => 1,
   }
@@ -75,56 +78,56 @@ define hashiplat::vault::instance (
 
   file { $etc_tls:
     ensure  => directory,
-    owner   => $hashiplat::vault::user,
-    group   => $hashiplat::vault::group,
-    mode    => '0750',
+    owner   => $user,
+    group   => $group,
+    mode    => '0550',
     require => File[$config_dir],
   }
 
   file { "${etc_tls}/ca.pem":
     source  => $tls_ca,
-    owner   => $hashiplat::vault::user,
-    group   => $hashiplat::vault::group,
+    owner   => $user,
+    group   => $group,
     mode    => '0444',
     require => File[$etc_tls],
   }
 
   file { "${etc_tls}/public.pem":
     source  => $tls_cert,
-    owner   => $hashiplat::vault::user,
-    group   => $hashiplat::vault::group,
+    owner   => $user,
+    group   => $group,
     mode    => '0444',
     require => File[$etc_tls],
   }
 
   file { "${etc_tls}/private.pem":
     source  => $tls_key,
-    owner   => $hashiplat::vault::user,
-    group   => $hashiplat::vault::group,
+    owner   => $user,
+    group   => $group,
     mode    => '0440',
     require => File[$etc_tls],
   }
 
   concat { "${etc_tls}/chain.pem":
-    owner   => $hashiplat::vault::user,
-    group   => $hashiplat::vault::group,
+    owner   => $user,
+    group   => $group,
     mode    => '0444',
     require => [
-      User[$hashiplat::vault::user],
-      Group[$hashiplat::vault::group],
+      User[$user],
+      Group[$group],
       File["${etc_tls}/public.pem"],
       File["${etc_tls}/ca.pem"],
     ],
     notify  => Service[$service],
   }
 
-  concat::fragment { "vault_${mode}_ssl_cert_fragment":
+  concat::fragment { "${app}_${mode}_ssl_cert_fragment":
     target => "${etc_tls}/chain.pem",
     source => "${etc_tls}/public.pem",
     order  => '01',
   }
 
-  concat::fragment { "vault_${mode}_ssl_ca_fragment":
+  concat::fragment { "${app}_${mode}_ssl_ca_fragment":
     target => "${etc_tls}/chain.pem",
     source => "${etc_tls}/ca.pem",
     order  => '02',
