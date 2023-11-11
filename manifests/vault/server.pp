@@ -1,22 +1,12 @@
 class hashiplat::vault::server (
   String            $config_dir = "${hashiplat::vault::config_dir}/server",
   String            $data_dir   = "${hashiplat::vault::data_dir}/server",
-  String            $region     = $hashiplat::vault::region,
+  Array[String]     $servers    = $hashiplat::vault::servers,
   String            $tls_ca     = $hashiplat::vault::tls_ca,
   String            $tls_cert   = $hashiplat::vault::tls_cert,
   String            $tls_key    = $hashiplat::vault::tls_key,
   Hash[String, Any] $config     = {},
 ) inherits hashiplat::vault {
-  $vault_query = @("QUERY"/L)
-    nodes [certname] { \
-      resources { \
-        type = "Class" \
-        and title = "Hashiplat::Vault::Server" \
-        and parameters.region = "${region}" \
-      } \
-    }
-    |- QUERY
-
   $server_config = {
     # VAULT_CLUSTER_ADDR
     cluster_addr         => "https://${::fqdn}:8201",
@@ -43,7 +33,7 @@ class hashiplat::vault::server (
     storage              => {
       raft => {
         path       => "${data_dir}/data/",
-        retry_join => (puppetdb_query($vault_query).map |$x| { $x['certname'] }).sort.map |$instance| {
+        retry_join => $servers.map |$instance| {
           {
             # leader_tls_servername => 'server.lab.vault',
             leader_api_addr         => "https://${instance}:8200",

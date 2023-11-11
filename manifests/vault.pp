@@ -26,4 +26,16 @@ class hashiplat::vault (
     config_dir  => $config_dir,
     data_dir    => $data_dir,
   }
+
+  $vault_query = @("QUERY"/L)
+    nodes [certname] { \
+      resources { \
+        type = "Class" \
+        and title = "Hashiplat::Vault::Server" \
+        and parameters.region = "${region}" \
+      } \
+    }
+    |- QUERY
+
+  $servers = (puppetdb_query($vault_query).map |$x| { $x['certname'] }).sort
 }

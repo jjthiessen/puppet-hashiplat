@@ -21,7 +21,7 @@ SecureBits=keep-caps
 AmbientCapabilities=CAP_IPC_LOCK
 CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
 NoNewPrivileges=yes
-ExecStart=/usr/local/bin/vault <%= @mode %> -config=<%= @config_dir %>/config/
+ExecStart=/usr/local/bin/vault <% if @mode == 'client' %>agent<% else %><%= @mode %><% end %> -config=<%= @config_dir %>/config/
 ExecReload=/bin/kill --signal HUP $MAINPID
 KillMode=process
 KillSignal=SIGINT
