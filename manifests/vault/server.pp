@@ -1,6 +1,7 @@
 class hashiplat::vault::server (
   String            $config_dir = "${hashiplat::vault::config_dir}/server",
   String            $data_dir   = "${hashiplat::vault::data_dir}/server",
+  String            $region     = $hashiplat::region,
   Array[String]     $servers    = $hashiplat::vault::servers,
   String            $tls_ca     = $hashiplat::vault::tls_ca,
   String            $tls_cert   = $hashiplat::vault::tls_cert,
