@@ -7,14 +7,14 @@
 define hashiplat::vault::certificate (
   String                               $pki_mount        = 'pki',
   String                               $pki_role         = split($::fqdn, '[.]')[1],
-  String                               $tls_dir          = join([$hashiplat::vault::client::data_dir, 'tls', $common_name], '/'),
-  String                               $tls_cert_pem     = join([$tls_dir, 'public.pem'], '/'),
-  String                               $tls_ca_pem       = join([$tls_dir, 'ca.pem'], '/'),
-  String                               $tls_bundle_pem   = join([$tls_dir, 'bundle.pem'], '/'),
-  String                               $tls_chain_pem    = join([$tls_dir, 'chain.pem'], '/'),
-  String                               $tls_key_pem      = join([$tls_dir, 'private.pem'], '/'),
+  Optional[String]                     $tls_dir          = undef,
+  Optional[String]                     $tls_cert_pem     = undef,
+  Optional[String]                     $tls_ca_pem       = undef,
+  Optional[String]                     $tls_bundle_pem   = undef,
+  Optional[String]                     $tls_chain_pem    = undef,
+  Optional[String]                     $tls_key_pem      = undef,
   String                               $common_name      = $name,
-  Array[String]                        $dns_sans         = [$common_name, $::fqdn, "*.${::fqdn}", 'localhost'].sort.unique,
+  Optional[Array[String]]              $dns_sans         = undef,
   Array[Stdlib::IP::Address::Nosubnet] $ip_sans          = ['127.0.0.1'],
   Optional[Boolean]                    $create_dest_dirs = true,
   Optional[String]                     $command          = undef,
@@ -26,6 +26,41 @@ define hashiplat::vault::certificate (
   # TODO: Systemd integration to load un-encrypted secrets.
   #       Drop-in with LoadCredential=${name}:${tls_dir}
 
+  $_tls_dir = $tls_dir ? {
+    String => $tls_dir,
+    Undef  => join([$hashiplat::vault::client::data_dir, 'tls', $common_name], '/'),
+  }
+
+  $_tls_cert_pem = $tls_cert_pem ? {
+    String => $tls_cert_pem,
+    Undef  => join([$_tls_dir, 'public.pem'], '/'),
+  }
+
+  $_tls_ca_pem = $tls_ca_pem ? {
+    String => $tls_ca_pem,
+    Undef  => join([$_tls_dir, 'ca.pem'], '/'),
+  }
+
+  $_tls_bundle_pem = $tls_bundle_pem ? {
+    String => $tls_bundle_pem,
+    Undef  => join([$_tls_dir, 'bundle.pem'], '/'),
+  }
+
+  $_tls_chain_pem = $tls_chain_pem ? {
+    String => $tls_chain_pem,
+    Undef  => join([$_tls_dir, 'chain.pem'], '/'),
+  }
+
+  $_tls_private_pem = $tls_private_pem ? {
+    String => $tls_private_pem,
+    Undef  => join([$_tls_dir, 'private.pem'], '/'),
+  }
+
+  $_dns_sans = $dns_sans ? {
+    Array[String] => $dns_sans,
+    Undef         => [$common_name, $::fqdn, "*.${::fqdn}", 'localhost'].sort.unique,
+  }
+
   $with_secret_tmpl = @(TEMPLATE)
     with secret "<%= $issue_path %>" "common_name=<%= $common_name %>" <% unless ($dns_sans =~ Array[Any, 0, 0]) { -%> "alt_names=<%= $dns_sans.join(',') %>" <% } -%> <% unless ($ip_sans =~ Array[Any, 0, 0]) { -%> "ip_sans=<%= $ip_sans.join(',') %>" <% } -%>
     | - TEMPLATE
@@ -33,7 +68,7 @@ define hashiplat::vault::certificate (
   $with_secret = inline_epp($with_secret_tmpl, {
     issue_path  => join([$pki_mount, 'issue', $pki_role], '/'),
     common_name => $common_name,
-    dns_sans    => $dns_sans,
+    dns_sans    => $_dns_sans,
     ip_sans     => $ip_sans,
   })
 
@@ -41,7 +76,7 @@ define hashiplat::vault::certificate (
   #$public_pem_check_name = downcase(regsubst(regsubst("${public_pem_tmpl_name} Expiry Check", '[ ]+', '-', 'EG'), '-+', '-', 'EG'))
 
   hashiplat::vault::template { $public_pem_tmpl_name:
-    destination          => $tls_cert_pem,
+    destination          => $_tls_cert_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
     command_timeout      => $command_timeout,
@@ -59,7 +94,7 @@ define hashiplat::vault::certificate (
   #$ca_pem_check_name = downcase(regsubst(regsubst("${ca_pem_tmpl_name} Expiry Check", '[ ]+', '-', 'EG'), '-+', '-', 'EG'))
 
   profile::vault_agent::template { $ca_pem_tmpl_name:
-    destination          => $tls_ca_pem,
+    destination          => $_tls_ca_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
     command_timeout      => $command_timeout,
@@ -79,7 +114,7 @@ define hashiplat::vault::certificate (
   #$bundle_pem_check_name = downcase(regsubst(regsubst("${bundle_pem_tmpl_name} Expiry Check", '[ ]+', '-', 'EG'), '-+', '-', 'EG'))
 
   profile::vault_agent::template { $bundle_pem_tmpl_name:
-    destination          => $tls_bundle_pem,
+    destination          => $_tls_bundle_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
     command_timeout      => $command_timeout,
@@ -99,7 +134,7 @@ define hashiplat::vault::certificate (
   #$chain_pem_check_name = downcase(regsubst(regsubst("${chain_pem_tmpl_name} Expiry Check", '[ ]+', '-', 'EG'), '-+', '-', 'EG'))
 
   profile::vault_agent::template { $chain_pem_tmpl_name:
-    destination          => $tls_chain_pem,
+    destination          => $_tls_chain_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
     command_timeout      => $command_timeout,
@@ -117,7 +152,7 @@ define hashiplat::vault::certificate (
   }
 
   profile::vault_agent::template { "${name} - Private Key":
-    destination          => $tls_key_pem,
+    destination          => $_tls_key_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
     command_timeout      => $command_timeout,
