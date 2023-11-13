@@ -93,7 +93,7 @@ define hashiplat::vault::certificate (
   $ca_pem_tmpl_name  = "${name} - Issuing CA Certificate"
   #$ca_pem_check_name = downcase(regsubst(regsubst("${ca_pem_tmpl_name} Expiry Check", '[ ]+', '-', 'EG'), '-+', '-', 'EG'))
 
-  profile::vault_agent::template { $ca_pem_tmpl_name:
+  hashiplat::vault::template { $ca_pem_tmpl_name:
     destination          => $_tls_ca_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
@@ -113,7 +113,7 @@ define hashiplat::vault::certificate (
   $bundle_pem_tmpl_name  = "${name} - CA Certificate Bundle"
   #$bundle_pem_check_name = downcase(regsubst(regsubst("${bundle_pem_tmpl_name} Expiry Check", '[ ]+', '-', 'EG'), '-+', '-', 'EG'))
 
-  profile::vault_agent::template { $bundle_pem_tmpl_name:
+  hashiplat::vault::template { $bundle_pem_tmpl_name:
     destination          => $_tls_bundle_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
@@ -133,7 +133,7 @@ define hashiplat::vault::certificate (
   $chain_pem_tmpl_name  = "${name} - Full Certificate Chain"
   #$chain_pem_check_name = downcase(regsubst(regsubst("${chain_pem_tmpl_name} Expiry Check", '[ ]+', '-', 'EG'), '-+', '-', 'EG'))
 
-  profile::vault_agent::template { $chain_pem_tmpl_name:
+  hashiplat::vault::template { $chain_pem_tmpl_name:
     destination          => $_tls_chain_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
@@ -151,7 +151,7 @@ define hashiplat::vault::certificate (
       | TEMPLATE
   }
 
-  profile::vault_agent::template { "${name} - Private Key":
+  hashiplat::vault::template { "${name} - Private Key":
     destination          => $_tls_key_pem,
     create_dest_dirs     => $create_dest_dirs,
     command              => $command,
