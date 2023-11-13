@@ -28,7 +28,7 @@ define hashiplat::vault::template (
 
   $no_slash_dest = join(split($destination, '[/]'), '_')
 
-  file { "${hashiplat::vault::client::config_dir}/${no_slash_dest}.json":
+  file { "${hashiplat::vault::client::config_dir}/config/${no_slash_dest}.json":
     ensure  => file,
     owner   => $hashiplat::vault::user,
     group   => $hashiplat::vault::group,
