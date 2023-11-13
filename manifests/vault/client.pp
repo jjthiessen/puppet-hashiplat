@@ -25,15 +25,17 @@ class hashiplat::vault::client (
     },
 
     auto_auth => {
-      method => {
+      method => [{
         type => 'cert',
         config => {
           reload => true,
         },
-      },
+      }],
     },
 
-    cache => {},
+    cache => {
+      use_auto_auth_token => true,
+    },
 
     #api_proxy => {
     #  use_auto_auth_token => true,
@@ -88,5 +90,9 @@ class hashiplat::vault::client (
     group   => $hashiplat::vault::group,
     mode    => '0750',
     require => File[$data_dir],
+  }
+
+  # TODO: Remove me - this is just for testing
+  hashiplat::vault::certificate { 'foo':
   }
 }
