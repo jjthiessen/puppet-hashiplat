@@ -33,9 +33,7 @@ class hashiplat::vault::client (
       }],
     },
 
-    cache => {
-      use_auto_auth_token => true,
-    },
+    cache => {},
 
     #api_proxy => {
     #  use_auto_auth_token => true,
