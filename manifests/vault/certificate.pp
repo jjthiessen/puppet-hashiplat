@@ -51,8 +51,8 @@ define hashiplat::vault::certificate (
     Undef  => join([$_tls_dir, 'chain.pem'], '/'),
   }
 
-  $_tls_private_pem = $tls_private_pem ? {
-    String => $tls_private_pem,
+  $_tls_key_pem = $tls_key_pem ? {
+    String => $tls_key_pem,
     Undef  => join([$_tls_dir, 'private.pem'], '/'),
   }
 
